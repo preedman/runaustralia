@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -24,6 +27,42 @@ public class ActivityRepositoryTest {
     private ActivityRepository activityRepository;
     @Autowired
     private MemberRepository memberRepository;
+
+    private void createTestDataforFiltering() {
+        Member member1 = new Member();
+        member1.setFirstname("Joy");
+        member1.setLastname("Doe");
+        member1.setJoindate(LocalDate.now());
+        member1.setStatus("Active");
+        memberRepository.save(member1);
+
+
+
+        Member member2 = new Member();
+        member2.setFirstname("Jane");
+        member2.setLastname("Smith");
+        member2.setJoindate(LocalDate.now());
+        member2.setStatus("Active");
+        memberRepository.save(member2);
+
+        Activity activity1 = new Activity();
+        activity1.setMemberid(member1);
+        activity1.setDatedone(LocalDate.of(2025, 1, 1));
+        activity1.setType("Running");
+
+        Activity activity2 = new Activity();
+        activity2.setMemberid(member1);
+        activity2.setDatedone(LocalDate.of(2025, 2, 1));
+        activity2.setType("Walking");
+
+        Activity activity3 = new Activity();
+        activity3.setMemberid(member2);
+        activity3.setDatedone(LocalDate.of(2025, 3, 1));
+        activity3.setType("Running");
+
+        activityRepository.saveAll(List.of(activity1, activity2, activity3));
+
+    }
 
     private Activity createSampleActivity() {
         Activity activity = new Activity();
@@ -70,7 +109,7 @@ public class ActivityRepositoryTest {
         Activity foundActivity = activityRepository.findById(activity.getId()).orElse(null);
 
         // then
-        System.out.println("!!!!!!!!!!!!!!!! " + foundActivity.getDescription());
+
 
         assertThat(foundActivity).isNotNull();
         assertThat(foundActivity.getDescription()).isEqualTo("Test Run");
@@ -123,6 +162,104 @@ public class ActivityRepositoryTest {
         // then
         assertThat(updatedActivity.getDescription()).isEqualTo("Updated Run");
     }
+
+    @Test
+    void findByFilters_WithMemberId_ShouldReturnMemberActivities() {
+
+        createTestDataforFiltering();  // set up for filtering tests
+        // Arrange
+        Optional<Member> memberResult = memberRepository.findByFirstnameAndLastname("Joy", "Doe");
+        Integer memberId = memberResult.get().getId();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Activity> result = activityRepository.findByFilters(
+                memberId,
+                null,
+                null,
+                pageable
+        );
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getContent())
+                .isNotEmpty()
+                .allMatch(activity -> activity.getMemberid().getId().equals(memberId));
+    }
+
+    @Test
+    void findByFilters_WithDateRange_ShouldReturnActivitiesInRange() {
+        // Arrange
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 2, 1);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Activity> result = activityRepository.findByFilters(
+                null,
+                startDate,
+                endDate,
+                pageable
+        );
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getContent())
+                .isNotEmpty()
+                .allMatch(activity ->
+                        !activity.getDatedone().isBefore(startDate) &&
+                                !activity.getDatedone().isAfter(endDate)
+                );
+    }
+
+    @Test
+    void findByFilters_WithAllParameters_ShouldReturnFilteredActivities() {
+        // Arrange
+        Integer memberId = 1;
+        LocalDate startDate = LocalDate.of(2025, 1, 1);
+        LocalDate endDate = LocalDate.of(2025, 12, 31);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Activity> result = activityRepository.findByFilters(
+                memberId,
+                startDate,
+                endDate,
+                pageable
+        );
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getContent())
+                .isNotEmpty()
+                .allMatch(activity ->
+                        activity.getMemberid().getId().equals(memberId) &&
+                                !activity.getDatedone().isBefore(startDate) &&
+                                !activity.getDatedone().isAfter(endDate)
+                );
+    }
+
+    @Test
+    void findByFilters_WithNoFilters_ShouldReturnAllActivities() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Act
+        Page<Activity> result = activityRepository.findByFilters(
+                null,
+                null,
+                null,
+                pageable
+        );
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isNotEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(3);
+    }
+
+
+
 
 
 
