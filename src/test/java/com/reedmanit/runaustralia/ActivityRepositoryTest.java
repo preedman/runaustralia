@@ -190,6 +190,7 @@ public class ActivityRepositoryTest {
     @Test
     void findByFilters_WithDateRange_ShouldReturnActivitiesInRange() {
         // Arrange
+        createTestDataforFiltering();  // set up for filtering tests
         LocalDate startDate = LocalDate.of(2025, 1, 1);
         LocalDate endDate = LocalDate.of(2025, 2, 1);
         Pageable pageable = PageRequest.of(0, 10);
@@ -215,7 +216,10 @@ public class ActivityRepositoryTest {
     @Test
     void findByFilters_WithAllParameters_ShouldReturnFilteredActivities() {
         // Arrange
-        Integer memberId = 1;
+        createTestDataforFiltering();  // set up for filtering tests
+        Optional<Member> memberResult = memberRepository.findByFirstnameAndLastname("Joy", "Doe");
+        Integer memberId = memberResult.get().getId();
+
         LocalDate startDate = LocalDate.of(2025, 1, 1);
         LocalDate endDate = LocalDate.of(2025, 12, 31);
         Pageable pageable = PageRequest.of(0, 10);
@@ -242,6 +246,7 @@ public class ActivityRepositoryTest {
     @Test
     void findByFilters_WithNoFilters_ShouldReturnAllActivities() {
         // Arrange
+        createTestDataforFiltering();  // set up for filtering tests
         Pageable pageable = PageRequest.of(0, 10);
 
         // Act

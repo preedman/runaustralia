@@ -33,12 +33,16 @@ class RouteRepositoryTest {
     void setUp() {
         // Create test places
         startPlace = new Place();
-        startPlace.setName("Start City");
+        startPlace.setName("Queen Street Mall");
+        startPlace.setLatitude(-27.4695f);
+        startPlace.setLongitude(153.02528f);
         startPlace = entityManager.persist(startPlace); // Persist place first
 
 
         endPlace = new Place();
-        endPlace.setName("End City");
+        endPlace.setName("Caloundra Hotel");
+        endPlace.setLatitude(-26.80512f);
+        endPlace.setLongitude(153.1352f);
         endPlace = entityManager.persist(endPlace); // Persist place first
 
 
@@ -124,6 +128,7 @@ class RouteRepositoryTest {
         Route firstRoute = routePage.getContent().get(0);
         assertNotNull(firstRoute.getPlaceStart());
         assertNotNull(firstRoute.getPlaceEnd());
+        assertEquals("Queen Street Mall", firstRoute.getPlaceStart().getName());
     }
 
     @Test

@@ -28,14 +28,24 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
     Page<Activity> findByActivityTypeWithMember(String type, Pageable pageable);
 
 
+    //@Query("SELECT a FROM Activity a WHERE " +
+    //        "(:memberId IS NULL OR a.memberid.id = :memberId) AND " +
+    //        "(:startDate IS NULL OR a.datedone >= :startDate) AND " +
+    //        "(:endDate IS NULL OR a.datedone <= :endDate)")
+    //Page<Activity> findByFilters(@Param("memberId") Integer memberId,
+    //                             @Param("startDate") LocalDate startDate,
+    //                             @Param("endDate") LocalDate endDate,
+    //                             Pageable pageable);
+
     @Query("SELECT a FROM Activity a WHERE " +
             "(:memberId IS NULL OR a.memberid.id = :memberId) AND " +
-            "(:startDate IS NULL OR a.datedone >= :startDate) AND " +
-            "(:endDate IS NULL OR a.datedone <= :endDate)")
+            "(CAST(:startDate as date) IS NULL OR a.datedone >= :startDate) AND " +
+            "(CAST(:endDate as date) IS NULL OR a.datedone <= :endDate)")
     Page<Activity> findByFilters(@Param("memberId") Integer memberId,
                                  @Param("startDate") LocalDate startDate,
                                  @Param("endDate") LocalDate endDate,
                                  Pageable pageable);
+
 
 
 }

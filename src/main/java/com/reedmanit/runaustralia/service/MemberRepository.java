@@ -29,8 +29,15 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     Page<Member> findByJoindateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    @Query("SELECT m FROM Member m JOIN Activity a WHERE a.datedone >= :since ORDER BY a.datedone DESC")
+  //  @Query("SELECT m FROM Member m JOIN Activity a WHERE a.datedone >= :since ORDER BY a.datedone DESC")
+  //  Page<Member> findMembersWithRecentActivities(@Param("since") LocalDate since, Pageable pageable);
+
+  //  @Query("SELECT DISTINCT m FROM Member m JOIN Activity a ON m.id = a.memberid.id WHERE a.datedone >= :since ORDER BY a.datedone DESC")
+  //  Page<Member> findMembersWithRecentActivities(@Param("since") LocalDate since, Pageable pageable);
+
+    @Query("SELECT DISTINCT m FROM Member m JOIN Activity a ON m.id = a.memberid.id WHERE a.datedone >= :since ORDER BY m.id")
     Page<Member> findMembersWithRecentActivities(@Param("since") LocalDate since, Pageable pageable);
+
 
     Long countByStatus(String status);
 }
