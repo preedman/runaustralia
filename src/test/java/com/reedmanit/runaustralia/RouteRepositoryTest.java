@@ -129,6 +129,8 @@ class RouteRepositoryTest {
         assertNotNull(firstRoute.getPlaceStart());
         assertNotNull(firstRoute.getPlaceEnd());
         assertEquals("Queen Street Mall", firstRoute.getPlaceStart().getName());
+
+
     }
 
     @Test

@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RunAustralia Dashboard</title>
+    <title>Run Queensland - Member Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Include Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -17,7 +17,7 @@
 </head>
 <body>
 <div class="container mt-4">
-    <h1>Dashboard</h1>
+    <h1>Run Queensland - Member Dashboard</h1>
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -159,10 +159,14 @@
        // const endLng = -26.80512;
 
         // To this:
-        const startLat = -27.4695;
-        const startLng = 153.02528;
-        const endLat = -26.80512;
-        const endLng = 153.1352;
+        const firstWayPointLat = -27.4695;
+        const firstWayPointLng = 153.02528;
+
+        const secondWayPointLat = -26.80512;
+        const secondWayPointLng = 153.1352;
+
+        const thirdWayPointLat = -26.40607;
+        const thirdWayPointLng = 153.11198;
 
 
         //   const startLat = parseFloat(document.getElementById('startLat').value);
@@ -173,11 +177,14 @@
         // Create new routing control
         routingControl = L.Routing.control({
             waypoints: [
-                L.latLng(startLat, startLng),
-                L.latLng(endLat, endLng)
+                L.latLng(firstWayPointLat, firstWayPointLng),
+                L.latLng(secondWayPointLat, secondWayPointLng),
+                L.latLng(thirdWayPointLat, thirdWayPointLng)
             ],
             routeWhileDragging: true,
             showAlternatives: true,
+            show: false, // This hides the directions panel
+            fitSelectedRoutes: true, // show route
             lineOptions: {
                 styles: [
                     {color: 'blue', opacity: 0.6, weight: 4}
@@ -186,7 +193,17 @@
         }).addTo(map);
 
         // Add markers for start and end points
-        addMarkers(startLat, startLng, endLat, endLng);
+       // addMarkers(firstWayPointLat, firstWayPointLng, secondWayPointLat, secondWayPointLng);
+       addMarker(firstWayPointLat, firstWayPointLng, "Queen Street Mall");
+       addMarker(secondWayPointLat, secondWayPointLng, "Caloundra Hotel");
+       addMarker(thirdWayPointLat, thirdWayPointLng, "Sunshine Beach SLSC");
+
+    }
+
+    function addMarker(startLat, endLng, description) {
+        L.marker([startLat, endLng])
+            .bindPopup(description)
+            .addTo(map);
     }
 
     function addMarkers(startLat, startLng, endLat, endLng) {
